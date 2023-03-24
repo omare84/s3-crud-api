@@ -14,7 +14,6 @@ provider:
 plugins:
   - serverless-iam-roles-per-function
 
-
 custom: 
   fileBucketName: s3-file-bucket-${self:provider.stage} #variable : prename of bcket : stage in (based dev stage)
 
@@ -29,11 +28,10 @@ functions:
       method: POST #Uploading so post
     iamRoleStatements: #each function, iamrolestatement via the plugin
       - Effect: Allow
-      - Action: #allow lambda function to perform action to add to s3 bucket
+        Action: #allow lambda function to perform action to add to s3 bucket
         - "s3:Put*"
         Resource: arn:aws:s3:::${self:custom.fileBucketName}/* #resource to apply effect to
         #/* allows lamnda function to put objects in any nested folder
-
   s3FileGet: #post endpoint, helps to upload files
    handler: src/get.handler # where handler located,function named handler
    name: s3-file-get
@@ -44,10 +42,9 @@ functions:
       method: GET #Uploading so post
     iamRoleStatements: #each function, iamrolestatement via the plugin
       - Effect: Allow
-      - Action: #allow lambda function to perform action to add to s3 bucket
+        Action: #allow lambda function to perform action to add to s3 bucket
         - "s3:Get*"
         Resource: arn:aws:s3:::${self:custom.fileBucketName}/* #resource to apply effect to
-
   s3FileUDelete: #post endpoint, helps to upload files
    handler: src/delete.handler # where handler located,function named handler
    name: s3-file-delete
@@ -58,12 +55,9 @@ functions:
       method: DELETE #Uploading so post
     iamRoleStatements: #each function, iamrolestatement via the plugin
       - Effect: Allow
-      - Action: #allow lambda function to perform action to add to s3 bucket
+        Action: #allow lambda function to perform action to add to s3 bucket
         - "s3:DeleteObject" #only want delete things in bucket so
         Resource: arn:aws:s3:::${self:custom.fileBucketName}/* #resource to apply effect to
-
-
-
 
 resources: #config for bucket
   Resources:
