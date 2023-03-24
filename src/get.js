@@ -13,19 +13,20 @@ module.exports.handler = async event => { //framwork for lambda handler, functio
     };
 
 try { 
-const params = {
-Bucket: BUCKET_NAME,//retrieve file below
-Key: decodeURIComponent(event.pathParameters.fileKey), //key passed as file parameter in serverless file
-};
+    const params = {
+        Bucket: BUCKET_NAME,//retrieve file below
+        Key: decodeURIComponent(event.pathParameters.fileKey), //key passed as file parameter in serverless file
+    };
 //retrieve bucket under key
-const getResult = await s3.getObject(params).promise();
-response.body = JSON.stringify({message: "Successfully retrieved file from s3", getResult }); //modify response body for good practice ensure stringfyd json
+    const getResult = await s3.getObject(params).promise();
+    response.body = JSON.stringify({message: "Successfully retrieved file from s3", getResult }); //modify response body for good practice ensure stringfyd json
 } catch (e) {
-console.error(e);//log the error
-response.body = JSON.stringify({message: "Failed to get file." errorMessage:e });//also can include itin response body
-response.statusCode = 500;//change satus code when lambda fails
+
+    console.error(e);//log the error
+    response.body = JSON.stringify({message: "Failed to get file.", errorMessage:e });//also can include itin response body
+    response.statusCode = 500;//change satus code when lambda fails
 }
 
 return response;
-    }
+    };
 

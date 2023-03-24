@@ -1,0 +1,75 @@
+service: s3-api-file
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-east-1
+  apiName: ${self:service} #referencing the service
+  memorySize: 128 #mb
+  timeout: 10 #seconds
+  environment: 
+    FILE_UPLOAD_BUCKET_NAME: ${self:custom.fileBucketName}    #LAMBDA TO ACCESS BUCKET NAME
+
+plugins:
+  - serverless-iam-roles-per-function
+
+
+custom: 
+  fileBucketName: s3-file-bucket-${self:provider.stage} #variable : prename of bcket : stage in (based dev stage)
+
+functions:
+  s3FileUploader: #post endpoint, helps to upload files
+   handler: src/upload.handler # where handler located,function named handler
+   name: s3-file-uploader
+   description: A lambda handler that uploads file to S3 bucket based on an API gateway trigger.
+   events: #main part to include for this lambda function - api gateway trigger allows lambda to execute
+    -http: # trigger, listening to http requests
+      path: file #can be rest resource,thing accessed 
+      method: POST #Uploading so post
+    iamRoleStatements: #each function, iamrolestatement via the plugin
+      - Effect: Allow
+      - Action: #allow lambda function to perform action to add to s3 bucket
+        - "s3:Put*"
+        Resource: arn:aws:s3:::${self:custom.fileBucketName}/* #resource to apply effect to
+        #/* allows lamnda function to put objects in any nested folder
+
+  s3FileGet: #post endpoint, helps to upload files
+   handler: src/get.handler # where handler located,function named handler
+   name: s3-file-get
+   description: A lambda handler that uploads file to S3 bucket based on an API gateway trigger.
+   events: #main part to include for this lambda function - api gateway trigger allows lambda to execute
+    -http: # trigger, listening to http requests
+      path: file/{fileKey} #Path into s3bucket, path parameter under filekey to get into s3bucket
+      method: GET #Uploading so post
+    iamRoleStatements: #each function, iamrolestatement via the plugin
+      - Effect: Allow
+      - Action: #allow lambda function to perform action to add to s3 bucket
+        - "s3:Get*"
+        Resource: arn:aws:s3:::${self:custom.fileBucketName}/* #resource to apply effect to
+
+  s3FileUDelete: #post endpoint, helps to upload files
+   handler: src/delete.handler # where handler located,function named handler
+   name: s3-file-delete
+   description: A lambda handler that uploads file to S3 bucket based on an API gateway trigger.
+   events: #main part to include for this lambda function - api gateway trigger allows lambda to execute
+    -http: # trigger, listening to http requests
+      path: file/{fileKey} #can be rest resource,thing accessed 
+      method: DELETE #Uploading so post
+    iamRoleStatements: #each function, iamrolestatement via the plugin
+      - Effect: Allow
+      - Action: #allow lambda function to perform action to add to s3 bucket
+        - "s3:DeleteObject" #only want delete things in bucket so
+        Resource: arn:aws:s3:::${self:custom.fileBucketName}/* #resource to apply effect to
+
+
+
+
+resources: #config for bucket
+  Resources:
+    FileBucket:
+      Type: AWS:: s3::Bucket
+      Properties:
+        BucketName: ${self.custom.fileBucketName} # main property needed but loads of other
+        AccessControl: Private
+
