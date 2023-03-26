@@ -62,7 +62,7 @@ functions:
 resources: #config for bucket
   Resources:
     FileBucket:
-      Type: AWS:: s3::Bucket
+      Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self.custom.fileBucketName} # main property needed but loads of other
         AccessControl: Private
